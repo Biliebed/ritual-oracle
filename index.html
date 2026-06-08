@@ -76,19 +76,17 @@
         .ritual-logo {
             width: 60px;
             height: 60px;
-            border-radius: 50%;
-            object-fit: cover;
-            filter: grayscale(100%) brightness(200%) contrast(150%);
-            mix-blend-mode: screen;
+            border-radius: 10px;
+            object-fit: contain;
             animation: logoGlow 2s ease-in-out infinite alternate;
         }
 
         @keyframes logoGlow {
             from { 
-                filter: grayscale(100%) brightness(200%) contrast(150%) drop-shadow(0 0 8px rgba(0, 255, 136, 0.6));
+                filter: drop-shadow(0 0 8px rgba(0, 255, 136, 0.6));
             }
             to { 
-                filter: grayscale(100%) brightness(200%) contrast(150%) drop-shadow(0 0 15px rgba(0, 255, 136, 0.9));
+                filter: drop-shadow(0 0 15px rgba(0, 255, 136, 0.9));
             }
         }
 
