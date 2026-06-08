@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔮 Ritual Oracle - Know Your Fate</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;500;700&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Rajdhani', sans-serif;
+            background: #0a0a0f;
+            min-height: 100vh;
+            overflow-x: hidden;
+            color: #fff;
+        }
+
+        /* Animated background */
+        .bg-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background: 
+                radial-gradient(ellipse at 20% 20%, rgba(0, 255, 136, 0.1) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 80%, rgba(138, 43, 226, 0.1) 0%, transparent 50%),
+                radial-gradient(ellipse at 50% 50%, rgba(0, 200, 255, 0.05) 0%, transparent 70%);
+        }
+
+        .stars {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+
+        .star {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: #fff;
+            border-radius: 50%;
+            animation: twinkle 2s infinite;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 1; }
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            padding: 40px 20px 20px;
+            position: relative;
+        }
+
+        .title {
+            font-family: 'Orbitron', monospace;
+            font-size: clamp(2rem, 6vw, 3.5rem);
+            font-weight: 900;
+            background: linear-gradient(135deg, #00ff88, #00d4ff, #a855f7);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 0 30px rgba(0, 255, 136, 0.5);
+            animation: glow 2s ease-in-out infinite alternate;
+            margin-bottom: 10px;
+        }
+
+        @keyframes glow {
+            from { filter: drop-shadow(0 0 10px rgba(0, 255, 136, 0.5)); }
+            to { filter: drop-shadow(0 0 20px rgba(0, 255, 136, 0.8)); }
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            color: #a0a0a0;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+        }
+
+        /* Main container */
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Wheel section */
+        .wheel-section {
+            position: relative;
+            margin: 30px auto;
+            width: 320px;
+            height: 320px;
+        }
+
+        .wheel-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: conic-gradient(
+                from 0deg,
+                #ff6b6b 0deg 30deg,
+                #4ecdc4 30deg 60deg,
+                #45b7d1 60deg 90deg,
+                #96e6a1 90deg 120deg,
+                #dda0dd 120deg 150deg,
+                #f7dc6f 150deg 180deg,
+                #82e0aa 180deg 210deg,
+                #f8c291 210deg 240deg,
+                #85c1e9 240deg 270deg,
+                #d7bde2 270deg 300deg,
+                #a3e4d7 300deg 330deg,
+                #f9e79f 330deg 360deg
+            );
+            box-shadow: 
+                0 0 0 8px #1a1a2e,
+                0 0 30px rgba(0, 255, 136, 0.3),
+                inset 0 0 50px rgba(0, 0, 0, 0.5);
+        }
+
+        .wheel-center {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #1a1a2e, #2d2d44);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            box-shadow: 0 0 20px rgba(0, 255, 136, 0.5);
+            z-index: 10;
+            border: 3px solid #00ff88;
+        }
+
+        .wheel-pointer {
+            position: absolute;
+            top: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 15px solid transparent;
+            border-right: 15px solid transparent;
+            border-top: 30px solid #00ff88;
+            z-index: 20;
+            filter: drop-shadow(0 0 10px rgba(0, 255, 136, 0.8));
+        }
+
+        .wheel-labels {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        .wheel-label {
+            position: absolute;
+            width: 60px;
+            text-align: center;
+            font-size: 0.7rem;
+            font-weight: bold;
+            color: #fff;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
+            transform-origin: center;
+        }
+
+        /* Spin button */
+        .spin-btn {
+            display: block;
+            margin: 30px auto;
+            padding: 18px 60px;
+            font-family: 'Orbitron', monospace;
+            font-size: 1.2rem;
+            font-weight: bold;
+            background: linear-gradient(135deg, #00ff88, #00d4ff);
+            color: #0a0a0f;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            box-shadow: 0 0 30px rgba(0, 255, 136, 0.4);
+        }
+
+        .spin-btn:hover:not(:disabled) {
+            transform: scale(1.05);
+            box-shadow: 0 0 50px rgba(0, 255, 136, 0.6);
+        }
+
+        .spin-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            background: #444;
+        }
+
+        /* Fortune card */
+        .fortune-card {
+            display: none;
+            background: linear-gradient(135deg, #1a1a2e 0%, #0d0d15 100%);
+            border: 2px solid #00ff88;
+            border-radius: 20px;
+            padding: 30px;
+            margin: 30px 0;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            animation: cardAppear 0.5s ease;
+        }
+
+        @keyframes cardAppear {
+            from { 
+                opacity: 0; 
+                transform: translateY(30px) scale(0.9); 
+            }
+            to { 
+                opacity: 1; 
+                transform: translateY(0) scale(1); 
+            }
+        }
+
+        .fortune-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(0, 255, 136, 0.1), transparent);
+            animation: shimmer 2s infinite;
+        }
+
+        @keyframes shimmer {
+            100% { left: 100%; }
+        }
+
+        .fortune-card.show {
+            display: block;
+        }
+
+        .fortune-category {
+            font-family: 'Orbitron', monospace;
+            font-size: 1rem;
+            color: #a855f7;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            margin-bottom: 15px;
+        }
+
+        .fortune-text {
+            font-size: 1.4rem;
+            line-height: 1.6;
+            color: #e0e0e0;
+            margin: 20px 0;
+            font-style: italic;
+        }
+
+        .fortune-lucky {
+            display: inline-block;
+            background: rgba(0, 255, 136, 0.2);
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-family: 'Orbitron', monospace;
+            font-size: 1.5rem;
+            color: #00ff88;
+            margin-top: 15px;
+        }
+
+        /* Streak counter */
+        .streak {
+            text-align: center;
+            margin: 20px 0;
+            padding: 15px;
+            background: rgba(168, 85, 247, 0.1);
+            border-radius: 10px;
+            border: 1px solid rgba(168, 85, 247, 0.3);
+        }
+
+        .streak-text {
+            font-size: 0.9rem;
+            color: #a855f7;
+        }
+
+        .streak-count {
+            font-family: 'Orbitron', monospace;
+            font-size: 2rem;
+            font-weight: bold;
+            color: #00ff88;
+        }
+
+        /* Buttons */
+        .buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 25px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 12px 30px;
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 1rem;
+            font-weight: bold;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn-share {
+            background: linear-gradient(135deg, #a855f7, #6366f1);
+            color: #fff;
+            border: none;
+            box-shadow: 0 0 20px rgba(168, 85, 247, 0.4);
+        }
+
+        .btn-share:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 30px rgba(168, 85, 247, 0.6);
+        }
+
+        .btn-again {
+            background: transparent;
+            color: #00ff88;
+            border: 2px solid #00ff88;
+        }
+
+        .btn-again:hover {
+            background: rgba(0, 255, 136, 0.1);
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 30px;
+            color: #666;
+            font-size: 0.85rem;
+        }
+
+        .footer a {
+            color: #00ff88;
+            text-decoration: none;
+        }
+
+        /* Share card (hidden canvas) */
+        #shareCanvas {
+            display: none;
+        }
+
+        /* Mobile responsive */
+        @media (max-width: 400px) {
+            .wheel-section {
+                width: 280px;
+                height: 280px;
+            }
+            
+            .fortune-text {
+                font-size: 1.1rem;
+            }
+            
+            .spin-btn {
+                padding: 15px 40px;
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-animation"></div>
+    <div class="stars" id="stars"></div>
+
+    <div class="header">
+        <h1 class="title">🔮 RITUAL ORACLE</h1>
+        <p class="subtitle">✦ Know Your Fate ✦</p>
+    </div>
+
+    <div class="container">
+        <!-- Streak -->
+        <div class="streak">
+            <div class="streak-text">DAILY STREAK</div>
+            <div class="streak-count" id="streakCount">0</div>
+            <div class="streak-text">consecutive days</div>
+        </div>
+
+        <!-- Wheel -->
+        <div class="wheel-section">
+            <div class="wheel-pointer"></div>
+            <div class="wheel-container" id="wheel">
+                <div class="wheel-center">🔮</div>
+            </div>
+        </div>
+
+        <!-- Spin button -->
+        <button class="spin-btn" id="spinBtn" onclick="spinWheel()">
+            🎰 SPIN TO KNOW YOUR FATE
+        </button>
+
+        <!-- Fortune card -->
+        <div class="fortune-card" id="fortuneCard">
+            <div class="fortune-category" id="fortuneCategory"></div>
+            <div class="fortune-text" id="fortuneText"></div>
+            <div class="fortune-lucky" id="fortuneLucky"></div>
+            
+            <div class="buttons">
+                <button class="btn btn-share" onclick="shareFortune()">📸 SHARE</button>
+                <button class="btn btn-again" onclick="resetWheel()">🔄 SPIN AGAIN</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer">
+        Made with 💚 by <a href="https://github.com/Biliebed">Biliebed</a> | 
+        <a href="https://ritual.net">Ritual</a> Community
+    </div>
+
+    <!-- Hidden canvas for sharing -->
+    <canvas id="shareCanvas" width="600" height="600"></canvas>
+
+    <script>
+        // Categories
+        const categories = [
+            { name: 'LOVE', emoji: '💕', color: '#ff6b6b' },
+            { name: 'CAREER', emoji: '💼', color: '#4ecdc4' },
+            { name: 'MONEY', emoji: '💰', color: '#f7dc6f' },
+            { name: 'HEALTH', emoji: '💚', color: '#96e6a1' },
+            { name: 'LUCKY NUM', emoji: '🎲', color: '#dda0dd' },
+            { name: 'FRIENDSHIP', emoji: '🤝', color: '#82e0aa' },
+            { name: 'ADVENTURE', emoji: '🗺️', color: '#f8c291' },
+            { name: 'WISDOM', emoji: '📚', color: '#85c1e9' },
+            { name: 'CREATIVITY', emoji: '🎨', color: '#d7bde2' },
+            { name: 'SURPRISE', emoji: '🎁', color: '#a3e4d7' },
+            { name: 'DESTINY', emoji: '⭐', color: '#f9e79f' },
+            { name: 'MYSTERY', emoji: '🌙', color: '#00ff88' }
+        ];
+
+        // Fortunes by category
+        const fortunes = {
+            'LOVE': [
+                "A unexpected encounter will bring warmth to your heart soon...",
+                "Open your heart - someone special is watching from afar...",
+                "Love finds those who least expect it. Stay ready! ✨",
+                "Your soulmate might be just one click away...",
+                "A deep connection awaits in the most unlikely place..."
+            ],
+            'CAREER': [
+                "A bold move now will open doors you never imagined...",
+                "The stars say: it's time to take that leap of faith! 🚀",
+                "Your next big opportunity comes from an old connection...",
+                "Trust your instincts - they're leading you to greatness...",
+                "A simple 'hello' could change your entire career path..."
+            ],
+            'MONEY': [
+                "An investment in knowledge will pay the best interest...",
+                "Financial surprise heading your way within 48 hours! 💸",
+                "The universe says: spend wisely, earn abundantly...",
+                "A side project will turn into your main income source...",
+                "Generosity today brings prosperity tomorrow..."
+            ],
+            'HEALTH': [
+                "Your body is craving adventure. Get moving today! 💪",
+                "Hydration is your superpower. Drink up, warrior!",
+                "A short walk will bring clarity you've been seeking...",
+                "Rest is productive. Listen to what your body whispers...",
+                "Today's self-care is tomorrow's vitality. Start now!"
+            ],
+            'LUCKY NUM': [
+                "Your lucky number today is: {lucky}. Trust it! 🍀",
+                "The cosmos whispers: {lucky} will bring you fortune...",
+                "Look for {lucky} - it's your sign from the universe!",
+                "Play {lucky} today. The stars are aligned for you!",
+                "Your magical number: {lucky}. Use it wisely! ✨"
+            ],
+            'FRIENDSHIP': [
+                "Reach out to an old friend. They need to hear from you... 🤗",
+                "Your next best friend is waiting in an online community...",
+                "Kindness returned will come back tenfold this week...",
+                "A stranger will become your greatest ally soon...",
+                "Share your story - someone needs to hear exactly that..."
+            ],
+            'ADVENTURE': [
+                "Step outside your comfort zone today. Magic happens there! 🌟",
+                "A spontaneous decision will lead to an unforgettable memory...",
+                "The road less traveled is calling your name...",
+                "Book that trip. The universe has your back! ✈️",
+                "Your next adventure starts with a single 'yes'..."
+            ],
+            'WISDOM': [
+                "The answer you seek is hidden in silence. Pause and listen... 🧘",
+                "A book you pick up today will change your perspective forever...",
+                "Teach what you know - mastery comes through sharing...",
+                "Question everything. Your curiosity is your compass...",
+                "The wisest choice is often the simplest one..."
+            ],
+            'CREATIVITY': [
+                "Your next idea is born from combining two things you love... 🎨",
+                "Don't wait for perfect. Start messy, finish amazing!",
+                "A doodle today could become your masterpiece tomorrow...",
+                "Your unique perspective is your superpower. Share it!",
+                "The muse visits those who are already creating..."
+            ],
+            'SURPRISE': [
+                "Something wonderful is about to happen. Stay alert! 🎁",
+                "The best things in life come wrapped in unexpected packages...",
+                "A random act of kindness will circle back to you today...",
+                "Keep your eyes open - surprise is hiding in plain sight!",
+                "Today's small moment becomes tomorrow's favorite memory..."
+            ],
+            'DESTINY': [
+                "Your path is clear. Trust the journey, not the destination... ⭐",
+                "The universe conspires in your favor. Believe it!",
+                "What's meant for you will never pass you by...",
+                "Your destiny is written in the stars. Read it today!",
+                "The stars have aligned. This is YOUR moment..."
+            ],
+            'MYSTERY': [
+                "The unknown holds the greatest treasures. Embrace it... 🌙",
+                "Something magical is brewing in your life. Be patient...",
+                "The moon whispers secrets only you can hear tonight...",
+                "Trust the mystery. Sometimes not knowing is knowing...",
+                "The universe has plans for you that exceed your dreams..."
+            ]
+        };
+
+        let isSpinning = false;
+        let currentRotation = 0;
+
+        // Create stars background
+        function createStars() {
+            const starsContainer = document.getElementById('stars');
+            for (let i = 0; i < 100; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                star.style.left = Math.random() * 100 + '%';
+                star.style.top = Math.random() * 100 + '%';
+                star.style.animationDelay = Math.random() * 2 + 's';
+                star.style.opacity = Math.random() * 0.5 + 0.3;
+                starsContainer.appendChild(star);
+            }
+        }
+
+        // Initialize streak from localStorage
+        function initStreak() {
+            const lastSpin = localStorage.getItem('ritualOracleLastSpin');
+            const streak = parseInt(localStorage.getItem('ritualOracleStreak') || '0');
+            const today = new Date().toDateString();
+            
+            if (lastSpin === today) {
+                document.getElementById('streakCount').textContent = streak;
+            } else if (lastSpin) {
+                const lastDate = new Date(lastSpin);
+                const todayDate = new Date();
+                const diffDays = Math.floor((todayDate - lastDate) / (1000 * 60 * 60 * 24));
+                
+                if (diffDays > 1) {
+                    localStorage.setItem('ritualOracleStreak', '0');
+                    document.getElementById('streakCount').textContent = '0';
+                }
+            }
+        }
+
+        // Update streak
+        function updateStreak() {
+            const today = new Date().toDateString();
+            const lastSpin = localStorage.getItem('ritualOracleLastSpin');
+            
+            if (lastSpin !== today) {
+                let streak = parseInt(localStorage.getItem('ritualOracleStreak') || '0');
+                streak++;
+                localStorage.setItem('ritualOracleStreak', streak.toString());
+                localStorage.setItem('ritualOracleLastSpin', today);
+                document.getElementById('streakCount').textContent = streak;
+            }
+        }
+
+        // Spin the wheel
+        function spinWheel() {
+            if (isSpinning) return;
+            
+            isSpinning = true;
+            document.getElementById('spinBtn').disabled = true;
+            document.getElementById('fortuneCard').classList.remove('show');
+            
+            const wheel = document.getElementById('wheel');
+            const segmentAngle = 360 / categories.length;
+            const randomIndex = Math.floor(Math.random() * categories.length);
+            const targetAngle = 360 - (randomIndex * segmentAngle + segmentAngle / 2);
+            
+            const spins = 5 + Math.random() * 3;
+            const totalRotation = spins * 360 + targetAngle;
+            
+            currentRotation += totalRotation;
+            
+            // Apply transition via JavaScript
+            wheel.style.transition = 'transform 4s cubic-bezier(0.17, 0.67, 0.12, 0.99)';
+            wheel.style.transform = `rotate(${currentRotation}deg)`;
+            
+            setTimeout(() => {
+                isSpinning = false;
+                document.getElementById('spinBtn').disabled = false;
+                wheel.style.transition = 'none';
+                showFortune(categories[randomIndex]);
+                updateStreak();
+            }, 4000);
+        }
+
+        // Show fortune
+        function showFortune(category) {
+            const categoryFortunes = fortunes[category.name];
+            let fortuneText = categoryFortunes[Math.floor(Math.random() * categoryFortunes.length)];
+            
+            // Generate lucky number
+            const luckyNum = Math.floor(Math.random() * 99) + 1;
+            fortuneText = fortuneText.replace('{lucky}', luckyNum);
+            
+            document.getElementById('fortuneCategory').innerHTML = 
+                `${category.emoji} ${category.name} ${category.emoji}`;
+            document.getElementById('fortuneText').textContent = fortuneText;
+            document.getElementById('fortuneLucky').textContent = `🎰 ${luckyNum}`;
+            
+            document.getElementById('fortuneCard').classList.add('show');
+        }
+
+        // Reset wheel
+        function resetWheel() {
+            document.getElementById('fortuneCard').classList.remove('show');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Share fortune
+        function shareFortune() {
+            const canvas = document.getElementById('shareCanvas');
+            const ctx = canvas.getContext('2d');
+            
+            // Background
+            const gradient = ctx.createLinearGradient(0, 0, 600, 600);
+            gradient.addColorStop(0, '#1a1a2e');
+            gradient.addColorStop(1, '#0d0d15');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, 600, 600);
+            
+            // Border
+            ctx.strokeStyle = '#00ff88';
+            ctx.lineWidth = 4;
+            ctx.strokeRect(20, 20, 560, 560);
+            
+            // Title
+            ctx.font = 'bold 36px Orbitron, monospace';
+            ctx.fillStyle = '#00ff88';
+            ctx.textAlign = 'center';
+            ctx.fillText('🔮 RITUAL ORACLE 🔮', 300, 80);
+            
+            // Category
+            ctx.font = 'bold 24px Rajdhani, sans-serif';
+            ctx.fillStyle = '#a855f7';
+            ctx.fillText(document.getElementById('fortuneCategory').textContent, 300, 140);
+            
+            // Fortune text
+            ctx.font = 'italic 22px Rajdhani, sans-serif';
+            ctx.fillStyle = '#e0e0e0';
+            const fortuneText = document.getElementById('fortuneText').textContent;
+            wrapText(ctx, fortuneText, 300, 250, 450, 30);
+            
+            // Lucky number
+            ctx.font = 'bold 28px Orbitron, monospace';
+            ctx.fillStyle = '#00ff88';
+            ctx.fillText(document.getElementById('fortuneLucky').textContent, 300, 450);
+            
+            // Streak
+            const streak = document.getElementById('streakCount').textContent;
+            ctx.font = '18px Rajdhani, sans-serif';
+            ctx.fillStyle = '#666';
+            ctx.fillText(`🔥 ${streak} day streak | Made with 💚`, 300, 520);
+            
+            // Download
+            const link = document.createElement('a');
+            link.download = 'ritual-oracle-fortune.png';
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+            
+            // Also try to share
+            if (navigator.share) {
+                canvas.toBlob(async (blob) => {
+                    const file = new File([blob], 'ritual-oracle-fortune.png', { type: 'image/png' });
+                    try {
+                        await navigator.share({
+                            files: [file],
+                            text: 'Check out my fortune from Ritual Oracle! 🔮✨',
+                            title: 'My Ritual Oracle Fortune'
+                        });
+                    } catch (err) {
+                        console.log('Share cancelled');
+                    }
+                });
+            }
+        }
+
+        // Helper function for text wrapping
+        function wrapText(ctx, text, x, y, maxWidth, lineHeight) {
+            const words = text.split(' ');
+            let line = '';
+            let testLine = '';
+            
+            for (let i = 0; i < words.length; i++) {
+                testLine = line + words[i] + ' ';
+                const metrics = ctx.measureText(testLine);
+                
+                if (metrics.width > maxWidth && i > 0) {
+                    ctx.fillText(line, x, y);
+                    line = words[i] + ' ';
+                    y += lineHeight;
+                } else {
+                    line = testLine;
+                }
+            }
+            ctx.fillText(line, x, y);
+        }
+
+        // Initialize
+        createStars();
+        initStreak();
+    </script>
+</body>
+</html>
